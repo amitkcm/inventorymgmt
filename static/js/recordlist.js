@@ -1,5 +1,6 @@
 
 $(document).ready(function() { 
+    $('.menu-content').hide();
     var auth_token = 'Token'+' '+localStorage.getItem('token');
     var is_manager = localStorage.getItem('is_manager') && localStorage.getItem('is_manager') ==1 ? true:false
     if(!localStorage.getItem('token')){
@@ -15,16 +16,19 @@ $(document).ready(function() {
 
         $('#logout_session').on("click",function(){
             window.localStorage.removeItem("token");
+            window.localStorage.removeItem("is_manager");
             $(window).attr("location", "http://localhost:8000/login/");
         });
         $('.inv_menu').on("click",function(){
             $('.menu-content').hide();
+            $('.nav-link').removeClass("active");
             $.ajax({
                 url: "http://localhost:8000/inv/",
                 type: 'GET',
                 headers: {"Authorization": auth_token}
             }).done(function(data){
                 $('#inventory_list').show();
+                $('.inv_menu').addClass("active");
                 $(".inventory_list tbody tr").remove();
                 data.forEach(element => {
                     inv_by_id[element.id] = element;
@@ -76,23 +80,7 @@ $(document).ready(function() {
                         else if(e.statusText)
                             alert(e.statusText)
                     })
-        
                  });
-
-                $(function(){
-                    $('.table tr[data-href]').each(function(){
-                        $(this).css('cursor','pointer').hover(
-                            function(){ 
-                                $(this).addClass('active'); 
-                            },  
-                            function(){ 
-                                $(this).removeClass('active'); 
-                            }).click( function(e){ 
-                                console.log($(this).attr('data-href')); 
-                            }
-                        );
-                    });
-                })
             })
             .fail(function(e){
                 $('#inventory_list').hide();
@@ -138,6 +126,8 @@ $(document).ready(function() {
         });
         $('.inv_pending_menu').on("click", function(e){
             $('.menu-content').hide();
+            $('.nav-link').removeClass("active");
+            $('.inv_pending_menu').addClass("active");
             $.ajax({
                 url: "http://localhost:8000/inv/",
                 type: 'GET',

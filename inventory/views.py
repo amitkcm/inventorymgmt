@@ -7,9 +7,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import inventorySerializer
-
-
-#--------------------------------------------------------
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
@@ -133,7 +130,7 @@ class inventoryList(viewsets.ModelViewSet):
 
 
 def invLoginUser(request):
-    return render(request,'inventory/login.html',{'titel':"Login"})
+    return render(request,'inventory/login.html',{'title':"Login"})
 
 def invRecordList(request):
     return render(request,'inventory/list.html')

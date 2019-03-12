@@ -25,7 +25,6 @@ $(document).ready(function() {
             alert("Username or Password can't be blank")
     });
     $('#password').keypress(function (e) {
-        console.log("keypress")
         if (e.which == 13) {
             $(".loginForm").click();
         }

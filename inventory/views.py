@@ -133,35 +133,24 @@ class inventoryList(viewsets.ModelViewSet):
 
 
 def invLoginUser(request):
-    if request.POST:
-        print(request.POST)
-        email = request.POST.get('email',None)
-        password = request.POST.get('password',None)
-        if email and password:
-            user = authenticate(request, email=email, password=password)
-            print(user)
-            if user is not None:
-                login(request, user)
-                return redirect('/')
     return render(request,'inventory/login.html',{'titel':"Login"})
 
 def invRecordList(request):
     return render(request,'inventory/list.html')
 
 
-def create_inventory(request):
-    data = request.POST
-    user = request.user
-    print(user.id)
-    print(user.role.all())
-    if user.is_authenticated():
-        print(user.id)
-    return render(request,'/',{})
+# def create_inventory(request):
+#     data = request.POST
+#     user = request.user
+#     if user.is_authenticated():
+#       return render(request,'/',{})
 
+# User this method if wishes all records without API
 class InventoryListView(ListView):
     queryset = Inventory.objects.all()
     template_name = "inventory/list.html"
 
+# User this method if wishes record by Id without API
 class InventoryDetailView(DetailView):
     queryset = Inventory.objects.all()
     template_name = "inventory/detail.html"

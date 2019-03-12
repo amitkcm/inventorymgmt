@@ -59,17 +59,19 @@ class inventoryList(viewsets.ModelViewSet):
             if role.is_manager:
                 manager = 1
         if not manager:
+            msg="Your create request is created in pending state"
             instance.status = 'pending'
             instance.operation = 'create'
             serializer.data.status = 'pending'
             serializer.data.operation = 'create'
         else:
+            msg="Inventry Created Successfulle"
             instance.status = 'approved'
             instance.operation = 'create'
             serializer.status = 'approved'
         instance.save()
         headers = self.get_success_headers(serializer.data)        
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response({"message":msg,'data':serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
 
     def update(self, request, pk=None):
         instance = self.queryset.get(pk=pk)
@@ -81,15 +83,17 @@ class inventoryList(viewsets.ModelViewSet):
             if role.is_manager:
                 manager = 1
         if not manager:
+            msg="Your update request is created in pending state"
             instance.status = 'pending'
             instance.operation = 'update'
             serializer.data.status = 'pending'
             serializer.data.operation = 'update'
         else:
+            msg = "Inventory Record Updated"
             instance.status = 'approved'
             serializer.data.status = 'approved'
         instance.save()        
-        return Response(serializer.data)
+        return Response({"message":msg,"data":serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.queryset.get(pk=kwargs.get('pk'))
@@ -102,15 +106,17 @@ class inventoryList(viewsets.ModelViewSet):
             if role.is_manager:
                 manager = 1
         if not manager:
+            msg="Your update request is created in pending state"
             instance.status = 'pending'
             instance.operation = 'update'
             serializer.data.status = 'pending'
             serializer.data.operation = 'update'
         else:
+            msg = "Inventory Record Updated"
             instance.status = 'approved'
             serializer.data.status = 'approved'
         instance.save()
-        return Response(serializer.data)
+        return Response({"message":msg,"data":serializer.data})
 
 
     def destroy(self, request, pk=None):
@@ -124,7 +130,7 @@ class inventoryList(viewsets.ModelViewSet):
             record.status = 'pending'
             record.operation = 'delete'
             record.save()
-            return Response({"Success": "Request Created"}, status=200)
+            return Response({"msg": "Request For Deletion Created"}, status=200)
         else:
             return super(inventoryList, self).destroy(request,pk)
 

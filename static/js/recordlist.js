@@ -56,36 +56,79 @@ $(document).ready(function() {
                     $('.update_inventory .form-control').each(function(idx,el){
                         el.value = edit_inv[el.name] || '';
                     });
+                    (function ($) {
+                        $("#datepicker").datepicker();
+            
+                    })
                 });
                 $('.table .delete').on('click',function(e){
                     let self = this;
                     let inv_id = $(this).attr('data-href');
-                    $.ajax({
-                        url: "http://localhost:8000/inv/"+inv_id+'/',
-                        type: 'DELETE',
-                        headers: {"Authorization": auth_token}
-                    }).done(function(data){
-                        if(is_manager)
-                            alert("Deleted")
-                        else
-                            alert("Delete request is done")
-                        $(self).closest('tr').remove();
-                        
-                    })
-                    .fail(function(e){
-                        if(e.responseJSON && e.responseJSON.error)  
-                            alert(e.responseJSON.error)
-                        else if(e.responseText)
-                            alert(e.responseText)
-                        else if(e.statusText)
-                            alert(e.statusText)
-                    })
+                    if(is_manager){
+                        swal({
+                            title: "Are you sure?",
+                            text: "Your will not be able to recover this record!",
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "Yes, delete it!",
+                            closeOnConfirm: false
+                          },
+                        function(){
+                            $.ajax({
+                                url: "http://localhost:8000/inv/"+inv_id+'/',
+                                type: 'DELETE',
+                                headers: {"Authorization": auth_token}
+                            }).done(function(data){
+                                swal(
+                                    'Record Deleted!',
+                                    "Record is successfully deleted",
+                                    'success'
+                                ).then(res =>{
+                                    $(self).closest('tr').remove();
+                                })
+                                
+                            })
+                            .fail(function(e){
+                                if(e.responseJSON && e.responseJSON.error)  
+                                    swal("Error", e.responseJSON.error, "error")
+                                else if(e.responseText)
+                                    swal("Error", e.responseText, "error")
+                                else if(e.statusText)
+                                    swal("Error", e.statusText, "error")
+                            })
+                        });
+                    }
+                    else{
+                        $.ajax({
+                            url: "http://localhost:8000/inv/"+inv_id+'/',
+                            type: 'DELETE',
+                            headers: {"Authorization": auth_token}
+                        }).done(function(data){
+                            swal(
+                                'Record Deleted!',
+                                data.message || "Record deletion request is created",
+                                'success'
+                            ).then(res =>{
+                                $(self).closest('tr').remove();
+                            })
+                            
+                        })
+                        .fail(function(e){
+                            if(e.responseJSON && e.responseJSON.error)  
+                                swal("Error", e.responseJSON.error, "error")
+                            else if(e.responseText)
+                                swal("Error", e.responseText, "error")
+                            else if(e.statusText)
+                                swal("Error", e.statusText, "error")
+                        })
+                    }
                  });
             })
             .fail(function(e){
                 $('#inventory_list').hide();
                 if(e.responseJSON && e.responseJSON.error)  
-                    alert(e.responseJSON.error);
+                    swal("Error", e.responseJSON.error, "error");
                 else if(e.responseJSON && e.responseJSON.detail)
                     alert(e.responseJSON.detail);
             })
@@ -97,7 +140,6 @@ $(document).ready(function() {
             $('.update_inventory .form-control').each(function(idx,el){
                 fields[el.name] = el.value || null;
             });
-            console.log("field",fields)
             var person = new Object();  
             person.product_id = 12;  
             person.product_name = "Kayal";
@@ -108,8 +150,16 @@ $(document).ready(function() {
                 headers: {"Authorization": auth_token},
                 data: fields,  
                 success: function (data, textStatus, xhr) {  
-                    alert("Inventory Updated");
-                    $('.inv_menu').click();
+                    console.log(data)
+                    let msg = data && data.message?data.message:"You have successfully updated Inventory"
+                    swal(
+                        'Inventory Updated!',
+                         msg,
+                        'success'
+                    )
+                    .then(value =>{
+                        $('.inv_menu').click();                        
+                    })
                 },  
                 error: function (xhr, textStatus, errorThrown) {  
                     console.log('Error in Operation');  
@@ -117,11 +167,11 @@ $(document).ready(function() {
             })
             .fail(function(e){
                 if(e.responseJSON && e.responseJSON.error)  
-                    alert(e.responseJSON.error)
+                    swal("Error", e.responseJSON.error, "error")
                 else if(e.responseText)
-                    alert(e.responseText)
+                    swal("Error", e.responseText, "error")
                 else if(e.statusText)
-                    alert(e.statusText)
+                    swal("Error", e.statusText, "error")
             });
         });
         $('.inv_pending_menu').on("click", function(e){
@@ -133,13 +183,13 @@ $(document).ready(function() {
                 type: 'GET',
                 headers: {"Authorization": auth_token}
             }).done(function(data){
-                $('#inventory_list').show();
-                $(".inventory_list tbody tr").remove();
+                $('#to_approved_list').show();
+                $("#to_approved_list tbody tr").remove();
                 data.forEach(element => {
                     to_approve_inv_by_id[element.id] = element;
                     if(is_manager && element.status == "approved")
                         return;
-                    $('.inventory_list tbody').append(
+                    $('#to_approved_list tbody').append(
                             '<tr' +' '+ 'id='+element.id+' '+'>'+
                             '<td>' + element.product_id +
                             '</td><td>' + element.product_name +
@@ -157,23 +207,39 @@ $(document).ready(function() {
                     let self = this;
                     let inv_id = $(this).attr('data-href');
                     let inv_record = to_approve_inv_by_id[inv_id];
-                    if(inv_record && inv_record.operation =="delete")
-                        $.ajax({
-                            url: "http://localhost:8000/inv/"+inv_id+'/',
-                            type: 'DELETE',
-                            headers: {"Authorization": auth_token}
-                        }).done(function(data){
-                           alert("Deleted!!!");
-                           $(self).closest('tr').remove();
-                        })
-                        .fail(function(e){
-                            if(e.responseJSON && e.responseJSON.error)  
-                                alert(e.responseJSON.error)
-                            else if(e.responseText)
-                                alert(e.responseText)
-                            else if(e.statusText)
-                                alert(e.statusText)
-                        })
+                    if(inv_record && inv_record.operation =="delete"){
+                        swal({
+                            title: "Are you sure?",
+                            text: "Your will not be able to recover this record!",
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "Yes, delete it!",
+                            closeOnConfirm: false
+                        },
+                        function(){
+                            $.ajax({
+                                url: "http://localhost:8000/inv/"+inv_id+'/',
+                                type: 'DELETE',
+                                headers: {"Authorization": auth_token}
+                            }).done(function(data){
+                               swal(
+                                    'Approved!!!',
+                                    'Your delete request is approved',
+                                    'success'
+                                )
+                               $(self).closest('tr').remove();
+                            })
+                            .fail(function(e){
+                                if(e.responseJSON && e.responseJSON.error)  
+                                    swal("Error", e.responseJSON.error, "error")
+                                else if(e.responseText)
+                                    swal("Error", e.responseText, "error")
+                                else if(e.statusText)
+                                    swal("Error", e.statusText, "error")
+                            })
+                        });
+                    }
                     else
                         $.ajax({  
                             url: 'http://localhost:8000/inv/'+ inv_id+'/',  
@@ -182,7 +248,11 @@ $(document).ready(function() {
                             headers: {"Authorization": auth_token},
                             data: {"status":"approved"},  
                             success: function (data, textStatus, xhr) {  
-                                alert("Approved");
+                                swal(
+                                    'Approved!!!',
+                                     'Your '+inv_by_id.operation +' request is approved',
+                                    'success'
+                                )
                                 $(self).closest('tr').remove();
                             },  
                             error: function (xhr, textStatus, errorThrown) {  
@@ -194,11 +264,11 @@ $(document).ready(function() {
             })
             .fail(function(e){
                 if(e.responseJSON && e.responseJSON.error)  
-                    alert(e.responseJSON.error)
+                    swal("Error", e.responseJSON.error, "error")
                 else if(e.responseText)
-                    alert(e.responseText)
+                    swal("Error", e.responseText, "error")
                 else if(e.statusText)
-                    alert(e.statusText)
+                    swal("Error", e.statusText, "error")
             });
         });
 
@@ -206,8 +276,6 @@ $(document).ready(function() {
             $('.menu-content').hide();
             $('.add_inventory').show();
             var date=new Date();
-            var batch_date =date.getFullYear() + "-"+(date.getMonth()+1)+"-"+date.getDate();
-            $('.add_inventory .form-group #batch_date').val(batch_date)
         })
         $('.create_inventory').on("click",function(e){               
             let fields = {};
@@ -224,8 +292,14 @@ $(document).ready(function() {
                 headers: {"Authorization": auth_token},
                 data: fields,  
                 success: function (data, textStatus, xhr) {  
-                    alert("Inventory Created");
-                    $('.inv_menu').click();
+                    let msg = data && data.message?data.message:"You have successfully created Inventory"
+                    swal(
+                        'Inventory Created!',
+                         msg,
+                        'success'
+                    ).then(value =>{
+                        $('.inv_menu').click();                        
+                    })
                 },  
                 error: function (xhr, textStatus, errorThrown) {  
                     console.log('Error in Operation');  
@@ -233,11 +307,11 @@ $(document).ready(function() {
             })
             .fail(function(e){
                 if(e.responseJSON && e.responseJSON.error)  
-                    alert(e.responseJSON.error)
+                    swal("Error", e.responseJSON.error, "error")
                 else if(e.responseText)
-                    alert(e.responseText)
+                    swal("Error", e.responseText, "error")
                 else if(e.statusText)
-                    alert(e.statusText)
+                    swal("Error", e.statusText, "error")
             })
         });
     } 

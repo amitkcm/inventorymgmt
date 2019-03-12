@@ -6,28 +6,44 @@
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 
 <head>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://unpkg.com/sweetalert2@7.8.2/dist/sweetalert2.all.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+    $( function() {
+      $( "#create_inv_batch_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+      $( "#edit_inv_batch_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+    });
+    </script>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-info">
+  <div class="topnav navbar-expand-lg navbar-light bg-info">
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto menu">
         <li class="nav-item">
-          <a class="nav-link menu-btn inv_menu" href="#inventory_list">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link menu-btn inv_pending_menu" href="#to_approved_list">Approve-Operations</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link menu-btn" id="logout_session" href="#">Logout</a>
         </li>
       </ul>
     </div>
-  </nav>
+  </div> 
+  <div class="topnav">
+      <a class="nav-link active inv_menu" href="#inventory_list">Home</a>
+    <a class="nav-link menu-btn inv_pending_menu" href="#to_approved_list">Approve-Operations</a>
+    <div class="login-container">
+      <a class="nav-link menu-btn" id="logout_session" href="#">Logout</a>      
+    </div>
+  </div>
 
-<div class="container  menu-content" id="to_approved_list">         
+<div class="container  menu-content" id="to_approved_list">  
+  <div class="row">
+      <div class="col-12">
+          <h1 style="margin-top:-4px">Inventories waiting for approval</h1> 
+      </div>
+    </div>         
       
   <table class="table table-hover">
     <thead>
@@ -50,7 +66,7 @@
 <div class="container inventory_list  menu-content" id="inventory_list">   
   <div class="row">
     <div class="col-6">
-        <h1 style="margin-top:-4px"> Inventory Records</h1> 
+        <h1 style="margin-top:-4px">All Inventory Records</h1> 
     </div>
     <div class="col-6">
         <button class="btn btn-info add_inventory" style="float: right;" id="add_inventory">ADD INVENTORY</button>        
@@ -75,8 +91,9 @@
   </table>
 </div>
 <div class="container update_inventory menu-content">
+    <h2><u>Edit Inventory</u></h2>
   <div class="div">
-    <div class="form-group hide"> 
+    <div class="form-group oe_hidden"> 
       <label for="product_id" class="control-label">Id</label>
       <input type="text" class="form-control" id="id" name="id">
     </div>
@@ -106,7 +123,7 @@
       </div> 
       <div class="form-group">
         <label for="batch_date" class="control-label">Batch Date</label>
-        <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="batch_date" name="batch_date" required>
+        <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="edit_inv_batch_date" name="batch_date" required>
       </div>
       <div class="form-group">
           <div>
@@ -117,6 +134,7 @@
 </div>
 
 <div class="container add_inventory menu-content">
+  <h2><u>Create Inventory</u></h2>
   <div class="form-group">
     <label for="product_id" class="control-label">Product Id</label>
     <input type="number" class="form-control" id="product_id" name="product_id"  required>
@@ -143,7 +161,7 @@
   </div> 
   <div class="form-group">
     <label for="batch_date" class="control-label">Batch Date</label>
-    <input type="text" class="form-control"  placeholder="YYYY-MM-DD" id="batch_date" name="batch_date" required>
+    <input type="text" class="form-control"  placeholder="YYYY-MM-DD" id="create_inv_batch_date" name="batch_date">
   </div>
   <div class="form-group">
     <div>
